@@ -1,0 +1,12 @@
+[Unit]
+Description=Waterpolo Shotclock
+After=multi-user.target
+
+[Service]
+Type=idle
+WorkingDirectory=/opt/shotclock
+ExecStart=/usr/bin/python3 -u ./shotclock.py
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

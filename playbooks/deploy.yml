@@ -1,0 +1,42 @@
+- hosts: shotclocks
+  tasks:
+    - name: ensure program directory exists
+      file:
+        path: /opt/shotclock
+        state: directory
+
+    - name: upload source code
+      copy:
+        src: ../src/
+        dest: /opt/shotclock
+      notify: "program changed"
+      tags: source
+
+    - name: ensure program is executable
+      file:
+        path: /opt/shotclock/shotclock.py
+        mode: 0755
+
+    - name: install service definition
+      copy:
+        src: ../shotclock.service
+        dest: /etc/systemd/system/shotclock.service
+        mode: 0644
+      notify: "service changed"
+      tags: service
+
+  handlers:
+    - name: reload systemd
+      command: systemctl daemon-reload
+      listen:
+        - "service changed"
+
+    - name: restart shotclock
+      service:
+        name: shotclock
+        state: restarted
+        enabled: yes
+      listen:
+        - "service changed"
+        - "program changed"
+
